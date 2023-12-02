@@ -70,4 +70,5 @@ func log(str string, lvl int) {
     println(str)
     println(func_line, name, line)
     println(time_line, time.Now().Format("2 Jan 15:04:05"))
+    println()
 }
