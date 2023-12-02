@@ -1,20 +1,45 @@
 package loggify
 
-import "runtime"
+import (
+	"runtime"
+	"time"
+)
 
 const (
     LEVEL_INFO = iota
     LEVEL_WARN
     LEVEL_ERROR
     LEVEL_DEBUG
-
-    info_line = "[INFO] "
-    warn_line = "[WARN] "
-    error_line = "[ERROR] "
-    debug_line = "[DEBUG] "
 )
 
-var Level = 0
+const (
+	reset  = "\033[0;0m"
+	red    = "\033[1;31m"
+	green  = "\033[1;32m"
+	yellow = "\033[1;33m"
+	cyan   = "\033[1;36m"
+	purple = "\033[1;35m"
+)
+
+const (
+    info_line = green + "[INFO]  " + reset
+    warn_line = yellow + "[WARN]  " + reset
+    error_line = red + "[ERROR] " + reset
+    debug_line = cyan + "[DEBUG] " + reset
+
+    func_line = purple + "FUNC:  " + reset
+    time_line = purple + "TIME:  " + reset
+)
+
+
+var level = 0
+
+func SetLevel(lvl int) {
+    if lvl < LEVEL_INFO || lvl > LEVEL_DEBUG {
+        panic("incorrect level for loggify")
+    }
+    level = lvl
+}
 
 func INFO(str string) {
     log(info_line + str, LEVEL_INFO)
@@ -33,11 +58,16 @@ func DEBUG(str string) {
 }
 
 func log(str string, lvl int) {
-    pc, _, line, ok := runtime.Caller(1)
+    if lvl < level {
+        return 
+    }
+    pc, _, line, ok := runtime.Caller(2)
     if !ok {
         println("Loggify error")
         return
     }
     name := runtime.FuncForPC(pc).Name()
-    println(str, name, line)
+    println(str)
+    println(func_line, name, line)
+    println(time_line, time.Now().Format("2 Jan 15:04:05"))
 }
